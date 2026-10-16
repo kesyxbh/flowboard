@@ -1,0 +1,8 @@
+# Usage: --spring.profiles.active=postgres
+# Create the database first:  CREATE DATABASE flowboard;  (user and password come from the variables below)
+# This profile has not been run on the author's machine (no PostgreSQL installed there).
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/flowboard}
+    username: ${DB_USER:flowboard}
+    password: ${DB_PASSWORD:flowboard}

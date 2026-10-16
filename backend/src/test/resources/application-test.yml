@@ -1,0 +1,12 @@
+# Test profile: every Spring context gets its own in-memory database (random name), so test classes cannot
+# interfere with each other and nothing touches the development data in ./data/.
+spring:
+  datasource:
+    url: jdbc:h2:mem:flowboard-${random.uuid};MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-test-secret-1234

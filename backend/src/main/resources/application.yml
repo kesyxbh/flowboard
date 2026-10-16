@@ -1,0 +1,57 @@
+server:
+  port: 8081                 # SmartCourt uses 8080 and TrackGo 8082, so all three can run side by side
+
+spring:
+  application:
+    name: flowboard-backend
+  web:
+    # Fallback language for validation messages when the request has no Accept-Language header.
+    # Without this, messages follow the language of the machine the server runs on.
+    locale: en
+  datasource:
+    # Default: file-based H2 in PostgreSQL compatibility mode. It needs no installation and keeps its data in ./data/
+    # (relative to the working directory, so start the app from backend/). H2 writes to disk about one second after
+    # a commit, so a process that is force-killed can lose the last second of writes; a normal stop does not.
+    # To use PostgreSQL instead: --spring.profiles.active=postgres (see application-postgres.yml).
+    url: jdbc:h2:file:./data/flowboard;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false      # no lazy loading after the transaction ends; DTOs are built inside the service
+    hibernate:
+      ddl-auto: update       # let Hibernate create/alter tables (MVP); Flyway migrations come later
+  ai:
+    openai:
+      # Any OpenAI-compatible provider works; DeepSeek is the default. The key comes from the LLM_API_KEY
+      # environment variable and must never be committed. "not-configured" is a placeholder so the application
+      # can still start without a key (the Spring AI starter refuses to start with an empty key). The AI endpoints
+      # answer 503 until a real key is set.
+      api-key: ${LLM_API_KEY:not-configured}
+      base-url: ${LLM_BASE_URL:https://api.deepseek.com}
+      chat:
+        options:
+          model: ${LLM_MODEL:deepseek-flash}
+          temperature: 0.2
+    retry:
+      # A provider outage must not hold a request thread for minutes (the default is 10 attempts with
+      # exponential backoff). Two attempts and short timeouts are enough here.
+      max-attempts: 2
+      backoff:
+        initial-interval: 500ms
+        multiplier: 2
+        max-interval: 3s
+  http:
+    client:
+      connect-timeout: 5s
+      read-timeout: 60s
+
+app:
+  jwt:
+    # Development-only default secret. Any real environment must set the JWT_SECRET environment variable
+    # (at least 32 bytes).
+    secret: ${JWT_SECRET:flowboard-dev-only-secret-please-override-in-prod-0123456789}
+    expiration: 24h
+  cors:
+    # The Vite dev server proxies /api, so CORS is not needed in development. It only matters when a browser
+    # calls this backend directly from another origin.
+    allowed-origins: http://localhost:5174

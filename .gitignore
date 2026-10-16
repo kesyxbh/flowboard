@@ -1,0 +1,20 @@
+# Build output
+backend/target/
+
+# Local H2 database files (dev data)
+backend/data/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Frontend (to come)
+node_modules/
+dist/
+
+# Code walkthroughs: study notes that stay on this machine
+docs/*.md
